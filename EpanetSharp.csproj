@@ -4,14 +4,35 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="tests\EpanetSharp.Tests\" />
   </ItemGroup>
 
+  <!-- Exclude test source files from the library project compile (they live under tests/ and are built as separate test projects) -->
   <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+    <None Remove="tests\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <!-- test sources are compiled in separate test projects; do not include here -->
+
+  <ItemGroup>
+    <None Include="tests\QuickDemo\QuickDemo.csproj" />
     <None Include="tests\TestRunner\TestRunner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy native EPANET DLLs to output when building the library -->
+    <None Include="runtimes\win-x64\native\epanet2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="runtimes\win-x86\native\epanet2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

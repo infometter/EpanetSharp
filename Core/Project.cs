@@ -12,6 +12,7 @@ namespace EpanetSharp.Core
     {
         private readonly NativeContext _nativeContext;
         private bool _disposed;
+        private Simulation.HydraulicSimulation? _simulation;
 
         /// <summary>
         /// Inicializa uma nova instância da classe <see cref="Project"/>.
@@ -19,7 +20,114 @@ namespace EpanetSharp.Core
         public Project()
         {
             _nativeContext = new NativeContext();
+            Network = new Network(_nativeContext);
         }
+
+        /// <summary>
+        /// Abre um projeto a partir do arquivo INP especificado e retorna a instância <see cref="Project"/> inicializada.
+        /// Este método cria uma nova instância de <see cref="Project"/>, invoca <see cref="Open()"/> para preparar
+        /// o contexto nativo e valida que o arquivo de entrada existe. A leitura do conteúdo do arquivo não é
+        /// realizada por enquanto; este método apenas prepara a instância para uso.
+        /// </summary>
+        /// <param name="inpFile">Caminho para o arquivo de entrada (.inp) do EPANET.</param>
+        /// <returns>Instância de <see cref="Project"/> pronta para uso.</returns>
+        /// <exception cref="ArgumentNullException">Se <paramref name="inpFile"/> for nulo.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">Se o arquivo informado não existir.</exception>
+        public static Project Open(string inpFile)
+        {
+            if (inpFile is null) throw new ArgumentNullException(nameof(inpFile));
+
+            if (!System.IO.File.Exists(inpFile))
+            {
+                throw new System.IO.FileNotFoundException("Input file not found.", inpFile);
+            }
+
+            var project = new Project();
+            project.OpenFile(inpFile);
+            return project;
+        }
+
+        /// <summary>
+        /// Abre (cria) o projeto nativo e carrega o arquivo INP especificado.
+        /// </summary>
+        /// <param name="inpFile">Caminho para o arquivo INP a ser aberto.</param>
+        public void OpenFile(string inpFile)
+        {
+            EnsureNotDisposed();
+
+            if (inpFile is null) throw new ArgumentNullException(nameof(inpFile));
+
+            // Cria o projeto nativo se necessário e abre o arquivo INP.
+            _nativeContext.OpenProject(inpFile);
+            InputFilePath = inpFile;
+        }
+
+        /// <summary>
+        /// Representa a rede hidráulica associada a este projeto.
+        /// A propriedade é inicializada com uma instância vazia e pode ser populada
+        /// quando os dados do projeto forem lidos.
+        /// </summary>
+        public Network Network { get; }
+
+        /// <summary>
+        /// Expose the native context for advanced operations (used by Reporting/Report).
+        /// </summary>
+        internal Native.NativeContext NativeContext => _nativeContext;
+
+        /// <summary>
+        /// Acesso ao módulo de simulação hidráulica associado a este projeto.
+        /// </summary>
+        public Simulation.HydraulicSimulation Simulation
+        {
+            get
+            {
+                if (_simulation is null)
+                {
+                    _simulation = new Simulation.HydraulicSimulation(_nativeContext);
+                }
+                return _simulation;
+            }
+        }
+
+        private Simulation.WaterQualitySimulation? _qualitySimulation;
+
+        /// <summary>
+        /// Acesso ao módulo de simulação de qualidade associado a este projeto.
+        /// </summary>
+        public Simulation.WaterQualitySimulation QualitySimulation
+        {
+            get
+            {
+                if (_qualitySimulation is null)
+                {
+                    _qualitySimulation = new Simulation.WaterQualitySimulation(_nativeContext);
+                }
+                return _qualitySimulation;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se a biblioteca nativa EPANET está disponível para chamadas P/Invoke.
+        /// Retorna <c>true</c> se a DLL nativa responder às chamadas previstas; caso contrário, <c>false</c>.
+        /// </summary>
+        public static bool IsNativeAvailable()
+        {
+            try
+            {
+                var api = new Native.NativeApi();
+                return api.IsAvailable();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Caminho do arquivo INP associado a este projeto quando aberto via <see cref="Open(string)"/>.
+        /// Pode ser nulo caso o projeto tenha sido criado sem associação a um arquivo.
+        /// </summary>
+        public string? InputFilePath { get; private set; }
 
         /// <summary>
         /// Indica se o projeto está aberto (projeto nativo criado).
@@ -35,19 +143,9 @@ namespace EpanetSharp.Core
             get
             {
                 EnsureNotDisposed();
-                try
-                {
-                    // Em futuras implementações, solicitar versão à camada nativa.
-                    return "EpanetSharp-0.1.0";
-                }
-                catch (EpanetException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new EpanetException("Falha ao obter versão.", ex);
-                }
+
+                // Em futuras implementações, solicitar versão à camada nativa.
+                return "EpanetSharp-0.1.0";
             }
         }
 
@@ -57,20 +155,10 @@ namespace EpanetSharp.Core
         public void Open()
         {
             EnsureNotDisposed();
-            try
+
+            if (!_nativeContext.IsProjectCreated)
             {
-                if (!_nativeContext.IsProjectCreated)
-                {
-                    _nativeContext.CreateProject();
-                }
-            }
-            catch (EpanetException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new EpanetException("Falha ao abrir o projeto.", ex);
+                _nativeContext.CreateProject();
             }
         }
 
@@ -80,20 +168,10 @@ namespace EpanetSharp.Core
         public void Close()
         {
             EnsureNotDisposed();
-            try
+
+            if (_nativeContext.IsProjectCreated)
             {
-                if (_nativeContext.IsProjectCreated)
-                {
-                    _nativeContext.DestroyProject();
-                }
-            }
-            catch (EpanetException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new EpanetException("Falha ao fechar o projeto.", ex);
+                _nativeContext.DestroyProject();
             }
         }
 
@@ -104,25 +182,15 @@ namespace EpanetSharp.Core
         public void Run()
         {
             EnsureNotDisposed();
-            try
-            {
-                if (!_nativeContext.IsProjectCreated)
-                {
-                    throw new EpanetException("Projeto não está aberto.");
-                }
 
-                // Em futura implementação, executar chamadas nativas que retornam um código.
-                // Simular operação bem-sucedida passando código 0 para CheckError.
-                _nativeContext.CheckError(0);
-            }
-            catch (EpanetException)
+            if (!_nativeContext.IsProjectCreated)
             {
-                throw;
+                throw new InvalidOperationException("Projeto não está aberto.");
             }
-            catch (Exception ex)
-            {
-                throw new EpanetException("Falha ao executar Run().", ex);
-            }
+
+            // Em futura implementação, executar chamadas nativas que retornam um código.
+            // Simular operação bem-sucedida passando código 0 para CheckError.
+            _nativeContext.CheckError(0);
         }
 
         /// <summary>
@@ -147,17 +215,19 @@ namespace EpanetSharp.Core
 
             if (disposing)
             {
+                // Dispose explícito: permitir que exceções fluam para o chamador.
+                _nativeContext?.Dispose();
+            }
+            else
+            {
+                // Finalizador: suprimir exceções para não abortar o GC.
                 try
                 {
                     _nativeContext?.Dispose();
                 }
-                catch (EpanetException)
+                catch
                 {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new EpanetException("Falha ao liberar recursos do projeto.", ex);
+                    // suprimir
                 }
             }
 
@@ -171,7 +241,7 @@ namespace EpanetSharp.Core
         {
             if (_disposed)
             {
-                throw new EpanetException("Project já descartado.");
+                throw new ObjectDisposedException(nameof(Project));
             }
         }
 
