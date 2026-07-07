@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="tests\EpanetSharp.Tests\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="tests\TestRunner\TestRunner.csproj" />
+  </ItemGroup>
+
 </Project>
