@@ -84,11 +84,44 @@ namespace EpanetSharp.Native
         {
             if (project == IntPtr.Zero) throw new ArgumentException("project", "Handle nativo inválido.");
             if (inpFile is null) throw new ArgumentNullException(nameof(inpFile));
-
-            int rc = NativeMethods.EN_open(project, inpFile);
+            // Call EN_open using input, report and binary filenames. Pass empty strings for report and binary
+            // which is compatible with EPANET C API expecting three string args.
+            int rc = NativeMethods.EN_open(project, inpFile, string.Empty, string.Empty);
             if (rc != 0)
             {
                 throw new EpanetException(rc, nameof(NativeMethods.EN_open), $"EN_open returned {rc}");
+            }
+
+            // Diagnostic hook: when environment variable EPANET_DIAG is set, write basic counts
+            // to a .diag.txt file next to the input file. This helps debugging discrepancies
+            // between EPANET report and EN_getcount values without changing public API.
+            try
+            {
+                var diag = System.Environment.GetEnvironmentVariable("EPANET_DIAG");
+                if (!string.IsNullOrEmpty(diag))
+                {
+                    try
+                    {
+                        int nodeCount = GetCount(project, NativeConstants.EN_NODECOUNT);
+                        int linkCount = GetCount(project, NativeConstants.EN_LINKCOUNT);
+                        string path = inpFile;
+                        string diagPath = System.IO.Path.ChangeExtension(path, ".diag.txt");
+                        var sb = new System.Text.StringBuilder();
+                        sb.AppendLine($"EPANET_DIAG: {DateTime.UtcNow:u}");
+                        sb.AppendLine($"InputFile: {path}");
+                        sb.AppendLine($"NodeCount: {nodeCount}");
+                        sb.AppendLine($"LinkCount: {linkCount}");
+                        System.IO.File.WriteAllText(diagPath, sb.ToString());
+                    }
+                    catch
+                    {
+                        // swallow diagnostic errors to avoid affecting normal execution
+                    }
+                }
+            }
+            catch
+            {
+                // ignore any unexpected issues reading env
             }
         }
 

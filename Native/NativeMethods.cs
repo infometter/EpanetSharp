@@ -29,9 +29,11 @@ namespace EpanetSharp.Native
 
         /// <summary>
         /// Assinatura P/Invoke para abrir um arquivo INP no projeto nativo (EN_open).
+        /// A API do EPANET tradicionalmente aceita três strings: input, report e binary filenames.
+        /// Mantemos CharSet.Ansi e CallingConvention.Cdecl.
         /// </summary>
         [DllImport("epanet2.dll", EntryPoint = "EN_open", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern int EN_open(IntPtr project, string inpFile);
+        internal static extern int EN_open(IntPtr project, string inpFile, string rptFile, string outFile);
 
         /// <summary>
         /// Assinatura P/Invoke para fechar um projeto nativo (EN_close).

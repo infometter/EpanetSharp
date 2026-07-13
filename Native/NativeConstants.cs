@@ -3,16 +3,18 @@ namespace EpanetSharp.Native
     /// <summary>
     /// Constantes utilizadas com EN_getcount na API nativa do EPANET.
     /// Os valores representam códigos de contagem conforme a API C do EPANET.
+    /// Fonte: https://github.com/OpenWaterAnalytics/EPANET/blob/dev/include/epanet2_enums.h (EN_CountType)
     /// </summary>
     internal static class NativeConstants
     {
-        public const int EN_NODECOUNT = 0;
-        public const int EN_LINKCOUNT = 1;
-        public const int EN_TANKCOUNT = 2;
-        public const int EN_RESERVOIRCOUNT = 3;
-        public const int EN_PATTERNCOUNT = 4;
-        public const int EN_CURVECOUNT = 5;
-        public const int EN_CONTROLCOUNT = 6;
+        // Count codes from EN_CountType enum
+        public const int EN_NODECOUNT = 0;       // Number of nodes (junctions + tanks + reservoirs)
+        public const int EN_TANKCOUNT = 1;       // Number of tanks and reservoirs
+        public const int EN_LINKCOUNT = 2;       // Number of links (pipes + pumps + valves)
+        public const int EN_PATTERNCOUNT = 3;    // Number of time patterns (was EN_PATCOUNT in C)
+        public const int EN_CURVECOUNT = 4;      // Number of data curves
+        public const int EN_CONTROLCOUNT = 5;    // Number of simple controls
+        public const int EN_RULECOUNT = 6;       // Number of rule-based controls
 
         // Option codes (EN_getoption/EN_setoption) - values are from EPANET C API
         // Prefixed with EN_OPTION_ to avoid name collisions with node/link parameter codes.

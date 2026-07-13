@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -15,12 +15,25 @@
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
     <None Remove="tests\**\*.cs" />
+    <Compile Remove="tempdiag\**\*.cs" />
+    <None Remove="tempdiag\**\*.cs" />
+    <Compile Remove="examples\**\*.cs" />
+    <None Remove="examples\**\*.cs" />
+    <!-- Explicitly remove newly added integration test files to avoid them being compiled into the library -->
+    <Compile Remove="tests\Integration\NativeDiagnosticTests.cs" />
+    <Compile Remove="tests\Integration\ProjectIntegrationTests.cs" />
+    <None Remove="tests\Integration\NativeDiagnosticTests.cs" />
+    <None Remove="tests\Integration\ProjectIntegrationTests.cs" />
   </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
+  <!-- Integration test sources are part of the tests projects and must not be compiled into the main library.
+       They were previously (incorrectly) included here which caused xUnit types to be unresolved when
+       building dependent test projects. Keep tests out of the library compile. -->
   <!-- test sources are compiled in separate test projects; do not include here -->
 
   <ItemGroup>
+    <None Include="examples\NetFramework46Example.csproj" />
+    <None Include="tempdiag\TempDiag.csproj" />
+    <None Include="tests\Integration\Integration.csproj" />
     <None Include="tests\QuickDemo\QuickDemo.csproj" />
     <None Include="tests\TestRunner\TestRunner.csproj" />
   </ItemGroup>

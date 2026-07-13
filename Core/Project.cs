@@ -60,6 +60,17 @@ namespace EpanetSharp.Core
             // Cria o projeto nativo se necessário e abre o arquivo INP.
             _nativeContext.OpenProject(inpFile);
             InputFilePath = inpFile;
+
+            // Após abrir o INP via API nativa, recarrega os contadores da rede para refletir
+            // o conteúdo do arquivo (nós, enlaces, etc.).
+            try
+            {
+                Network.ReloadCounts();
+            }
+            catch
+            {
+                // Não propagar erros de reload aqui; a chamada nativa já pode ter sido concluída.
+            }
         }
 
         /// <summary>
@@ -72,7 +83,7 @@ namespace EpanetSharp.Core
         /// <summary>
         /// Expose the native context for advanced operations (used by Reporting/Report).
         /// </summary>
-        internal Native.NativeContext NativeContext => _nativeContext;
+        public Native.NativeContext NativeContext => _nativeContext;
 
         /// <summary>
         /// Acesso ao módulo de simulação hidráulica associado a este projeto.
@@ -161,6 +172,8 @@ namespace EpanetSharp.Core
                 _nativeContext.CreateProject();
             }
         }
+
+
 
         /// <summary>
         /// Fecha (destrói) o projeto nativo.

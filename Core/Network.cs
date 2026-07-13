@@ -110,6 +110,8 @@ namespace EpanetSharp.Core
 
         /// <summary>
         /// Recarrega os contadores consultando a camada nativa via EN_getcount.
+        /// NOTA: EN_TANKCOUNT retorna a soma de tanks + reservoirs conforme a API do EPANET.
+        /// Para obter contagens separadas seria necessário iterar pelos nós usando EN_getnodetype.
         /// </summary>
         public void ReloadCounts()
         {
@@ -120,8 +122,10 @@ namespace EpanetSharp.Core
 
             NodeCount = _nativeContext.GetCount(NativeConstants.EN_NODECOUNT);
             LinkCount = _nativeContext.GetCount(NativeConstants.EN_LINKCOUNT);
-            TankCount = _nativeContext.GetCount(NativeConstants.EN_TANKCOUNT);
-            ReservoirCount = _nativeContext.GetCount(NativeConstants.EN_RESERVOIRCOUNT);
+            TankCount = _nativeContext.GetCount(NativeConstants.EN_TANKCOUNT);  // tanks + reservoirs
+            // ReservoirCount não tem equivalente direto em EN_getcount; EN_TANKCOUNT inclui ambos.
+            // Para obter apenas reservatórios, seria necessário iterar pelos nós e verificar EN_getnodetype.
+            ReservoirCount = 0;  // TODO: implementar contagem via iteração se necessário
             PatternCount = _nativeContext.GetCount(NativeConstants.EN_PATTERNCOUNT);
             CurveCount = _nativeContext.GetCount(NativeConstants.EN_CURVECOUNT);
             ControlCount = _nativeContext.GetCount(NativeConstants.EN_CONTROLCOUNT);

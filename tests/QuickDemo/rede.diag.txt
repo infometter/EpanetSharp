@@ -1,0 +1,4 @@
+EPANET_DIAG: 2026-07-13 18:15:51Z
+InputFile: rede.inp
+NodeCount: 4
+LinkCount: 1

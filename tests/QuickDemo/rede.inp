@@ -1,0 +1,28 @@
+[TITLE]
+; EPANET sample network - Net1
+Sample Network
+
+[OPTIONS]
+; Default options
+Units            LPS
+
+[JUNCTIONS]
+;ID        ELEVATION  DEMAND
+J1         100        10
+J2         100        20
+J3         100        30
+
+[RESERVOIRS]
+;ID    HEAD
+R1     120
+
+[PIPES]
+;ID   NODE1 NODE2 LENGTH  DIAM  ROUGHNESS  MINORLOSS  STATUS
+P1    R1    J1    1000   300   100        0         Open
+P2    J1    J2    800    250   100        0         Open
+P3    J2    J3    600    200   100        0         Open
+
+[PATTERNS]
+; none
+
+[END]

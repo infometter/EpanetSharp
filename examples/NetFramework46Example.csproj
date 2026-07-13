@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Exemplo de projeto .NET Framework 4.6 usando EpanetSharp
+
+  Para usar:
+  1. Crie um novo projeto Console App (.NET Framework) no Visual Studio
+  2. Substitua o .csproj por este arquivo
+  3. Adicione o arquivo NetFramework46Example.cs
+  4. Compile e execute
+-->
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProjectGuid>{12345678-1234-1234-1234-123456789012}</ProjectGuid>
+	<OutputType>Exe</OutputType>
+	<RootNamespace>ExemploFramework46</RootNamespace>
+	<AssemblyName>ExemploFramework46</AssemblyName>
+	<TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+	<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	<Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<PlatformTarget>AnyCPU</PlatformTarget>
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<PlatformTarget>AnyCPU</PlatformTarget>
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<Reference Include="System" />
+	<Reference Include="System.Core" />
+
+	<!-- Referência ao EpanetSharp.dll -->
+	<!-- AJUSTE O CAMINHO CONFORME SUA ESTRUTURA DE DIRETÓRIOS -->
+	<Reference Include="EpanetSharp">
+	  <HintPath>..\path\to\EpanetSharp.dll</HintPath>
+	  <Private>True</Private>
+	</Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Compile Include="NetFramework46Example.cs" />
+	<Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="App.config" />
+
+	<!-- Copiar DLL nativa do EPANET para a saída -->
+	<!-- AJUSTE O CAMINHO CONFORME SUA ESTRUTURA -->
+	<None Include="..\path\to\runtimes\win-x64\native\epanet2.dll">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+
+	<!-- Arquivo .inp de exemplo (opcional) -->
+	<None Include="rede.inp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
