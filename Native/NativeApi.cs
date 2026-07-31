@@ -361,6 +361,14 @@ namespace EpanetSharp.Native
             return index;
         }
 
+        public void GetLinkNodes(IntPtr project, int index, out int node1, out int node2)
+        {
+            int rc = NativeMethods.EN_getlinknodes(project, index, out node1, out node2);
+            if (rc != 0)
+                throw new EpanetException(rc, nameof(NativeMethods.EN_getlinknodes),
+                    $"EN_getlinknodes returned {rc}");
+        }
+
         public int GetLinkType(IntPtr project, int index)
         {
             if (project == IntPtr.Zero) throw new ArgumentException("project", "Handle nativo inválido.");

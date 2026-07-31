@@ -127,7 +127,11 @@ namespace EpanetSharp.Native
         [DllImport("epanet2.dll", EntryPoint = "EN_getlinktype", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int EN_getlinktype(IntPtr project, int index, out int type);
 
-        // Hydraulic simulation API (EN_openH, EN_initH, EN_runH, EN_nextH, EN_closeH)
+        /// <summary>Obtém os índices dos nós inicial e final de um link (EN_getlinknodes).</summary>
+        [DllImport("epanet2.dll", EntryPoint = "EN_getlinknodes", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int EN_getlinknodes(IntPtr project, int index, out int node1, out int node2);
+
+        // Hydraulic simulation API
         [DllImport("epanet2.dll", EntryPoint = "EN_openH", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern int EN_openH(IntPtr project);
 

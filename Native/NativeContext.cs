@@ -285,6 +285,13 @@ namespace EpanetSharp.Native
             return _api.GetLinkIndex(_projectHandle, id);
         }
 
+        public void GetLinkNodes(int index, out int node1, out int node2)
+        {
+            EnsureNotDisposed();
+            if (!IsProjectCreated) throw new InvalidOperationException("Native project is not created.");
+            _api.GetLinkNodes(_projectHandle, index, out node1, out node2);
+        }
+
         public int GetLinkType(int index)
         {
             EnsureNotDisposed();

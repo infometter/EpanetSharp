@@ -29,6 +29,12 @@ namespace EpanetSharp.Native
         public const int EN_OPTION_DURATION = 8;
         public const int EN_OPTION_HYDSTEP = 9; // Time step
 
+        // Tank node parameter codes (from EPANET C API EN_NodeProperty)
+        public const int EN_TANKLEVEL    = 10; // Nível inicial do tanque
+        public const int EN_TANKMINLEVEL = 11; // Nível mínimo do tanque
+        public const int EN_TANKMAXLEVEL = 12; // Nível máximo do tanque
+        public const int EN_TANKDIAM     = 13; // Diâmetro do tanque
+
         // Node parameter codes (from EPANET C API)
         public const int EN_ELEVATION = 0;
         public const int EN_BASEDEMAND = 1;
